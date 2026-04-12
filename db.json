@@ -1,0 +1,427 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "John Mwangi",
+      "email": "john@email.com",
+      "password": "$2a$10$QOL96wAG.VkbQNJQWKMvOO7SkAoZ1o4bsAld22kuX/WBMX4nzOmre",
+      "role": "patient",
+      "phone": "+254712345678",
+      "specialty": null,
+      "emergencyContact": {
+        "name": "Jane Mwangi",
+        "phone": "+254723456789",
+        "relationship": "Spouse"
+      },
+      "createdAt": "2024-03-29T10:00:00.000Z",
+      "preferences": {
+        "language": "en",
+        "theme": "light"
+      },
+      "avatar_url": null,
+      "date_of_birth": "1990-05-15",
+      "address": "123 Main Street, Nairobi",
+      "health_score": 85,
+      "blood_type": "O+",
+      "allergies": []
+    },
+    {
+      "id": 2,
+      "name": "Dr. Sarah Moraa",
+      "email": "sarah@health.com",
+      "password": "$2a$10$F5I2UZa8MWGoa/cFYJqfZuCSPT07/Hi8hJTsIPtGlf/fs1lhzungq",
+      "role": "doctor",
+      "specialty": "Cardiologist",
+      "phone": "+254723456789",
+      "createdAt": "2024-03-29T10:00:00.000Z",
+      "preferences": {
+        "language": "en",
+        "theme": "light"
+      },
+      "avatar_url": null,
+      "bio": "Board-certified cardiologist with over 12 years of experience.",
+      "address": "123 Medical Center Dr",
+      "license_number": "MD-12345",
+      "years_of_experience": "12",
+      "patientsCount": 156
+    },
+    {
+      "id": 3,
+      "name": "Dr. Michael Kibet",
+      "email": "michael@health.com",
+      "password": "$2a$10$F5I2UZa8MWGoa/cFYJqfZuCSPT07/Hi8hJTsIPtGlf/fs1lhzungq",
+      "role": "doctor",
+      "specialty": "Pediatrician",
+      "phone": "+254734567890",
+      "createdAt": "2024-03-29T10:00:00.000Z",
+      "preferences": {
+        "language": "en",
+        "theme": "light"
+      },
+      "avatar_url": null,
+      "bio": "Dedicated pediatrician specializing in child development.",
+      "address": "456 Children's Way",
+      "license_number": "MD-23456",
+      "years_of_experience": "8",
+      "patientsCount": 89
+    },
+    {
+      "id": 4,
+      "name": "Dr. Amina Khan",
+      "email": "amina@health.com",
+      "password": "$2a$10$F5I2UZa8MWGoa/cFYJqfZuCSPT07/Hi8hJTsIPtGlf/fs1lhzungq",
+      "role": "doctor",
+      "specialty": "Gynecologist",
+      "phone": "+254745678901",
+      "createdAt": "2024-03-29T10:00:00.000Z",
+      "preferences": {
+        "language": "en",
+        "theme": "light"
+      },
+      "avatar_url": null,
+      "bio": "Experienced gynecologist dedicated to women's health.",
+      "address": "789 Women's Health Center",
+      "license_number": "MD-34567",
+      "years_of_experience": "10",
+      "patientsCount": 112
+    },
+    {
+      "id": 5,
+      "name": "Mary Wanjiku",
+      "email": "mary@email.com",
+      "password": "$2a$10$QOL96wAG.VkbQNJQWKMvOO7SkAoZ1o4bsAld22kuX/WBMX4nzOmre",
+      "role": "patient",
+      "phone": "+254756789012",
+      "specialty": null,
+      "emergencyContact": {
+        "name": "Peter Wanjiku",
+        "phone": "+254767890123",
+        "relationship": "Brother"
+      },
+      "createdAt": "2024-03-29T10:00:00.000Z",
+      "preferences": {
+        "language": "en",
+        "theme": "light"
+      },
+      "avatar_url": null,
+      "date_of_birth": "1988-08-22",
+      "address": "456 Kilimani Road, Nairobi",
+      "health_score": 78,
+      "blood_type": "A+",
+      "allergies": [
+        "Sulfa drugs"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Peter Ochieng",
+      "email": "peter@email.com",
+      "password": "$2a$10$QOL96wAG.VkbQNJQWKMvOO7SkAoZ1o4bsAld22kuX/WBMX4nzOmre",
+      "role": "patient",
+      "phone": "+254767890123",
+      "specialty": null,
+      "emergencyContact": {
+        "name": "Mary Ochieng",
+        "phone": "+254778901234",
+        "relationship": "Sister"
+      },
+      "createdAt": "2024-03-29T10:00:00.000Z",
+      "preferences": {
+        "language": "en",
+        "theme": "light"
+      },
+      "avatar_url": null,
+      "date_of_birth": "1978-11-30",
+      "address": "789 Langata Road, Nairobi",
+      "health_score": 72,
+      "blood_type": "B-",
+      "allergies": [
+        "Penicillin"
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Natasha Leyla",
+      "email": "natashaleyla9@gmail.com",
+      "password": "$2a$10$QOL96wAG.VkbQNJQWKMvOO7SkAoZ1o4bsAld22kuX/WBMX4nzOmre",
+      "role": "patient",
+      "phone": "+254712345678",
+      "specialty": null,
+      "emergencyContact": null,
+      "createdAt": "2026-03-29T09:36:34.433Z",
+      "preferences": {
+        "language": "en",
+        "theme": "light"
+      },
+      "avatar_url": null,
+      "date_of_birth": "",
+      "address": "",
+      "health_score": 100,
+      "blood_type": "Unknown",
+      "allergies": []
+    }
+  ],
+  "appointments": [
+    {
+      "id": 1,
+      "patient_id": 1,
+      "doctor_id": 2,
+      "patient_name": "John Mwangi",
+      "doctor_name": "Dr. Sarah Moraa",
+      "date": "2024-04-15",
+      "time": "10:00",
+      "reason": "Chest pain",
+      "status": "confirmed",
+      "type": "in-person",
+      "notes": "",
+      "videoLink": null,
+      "createdAt": "2024-03-29T10:00:00.000Z",
+      "reminderSent": false
+    },
+    {
+      "id": 2,
+      "patient_id": 1,
+      "doctor_id": 4,
+      "patient_name": "John Mwangi",
+      "doctor_name": "Dr. Amina Khan",
+      "date": "2024-04-20",
+      "time": "14:30",
+      "reason": "Follow up",
+      "status": "confirmed",
+      "type": "in-person",
+      "notes": "",
+      "videoLink": null,
+      "createdAt": "2024-03-29T10:00:00.000Z",
+      "reminderSent": false,
+      "updated_at": "2026-04-11T17:54:57.327Z"
+    },
+    {
+      "id": 3,
+      "patient_id": 5,
+      "doctor_id": 4,
+      "patient_name": "Mary Wanjiku",
+      "doctor_name": "Dr. Amina Khan",
+      "date": "2026-03-31",
+      "time": "12:40",
+      "reason": "consultation",
+      "status": "pending",
+      "type": "in-person",
+      "notes": "",
+      "videoLink": null,
+      "createdAt": "2026-03-29T09:37:17.261Z",
+      "reminderSent": false
+    },
+    {
+      "id": 4,
+      "patient_id": 1,
+      "doctor_id": 4,
+      "patient_name": "John Mwangi",
+      "doctor_name": "Dr. Amina Khan",
+      "date": "2026-03-30",
+      "time": "13:00",
+      "reason": "consultation",
+      "status": "pending",
+      "type": "in-person",
+      "notes": "",
+      "createdAt": "2026-03-29T13:23:58.934Z"
+    },
+    {
+      "id": 5,
+      "patient_id": 7,
+      "doctor_id": 4,
+      "patient_name": "Natasha Leyla",
+      "doctor_name": "Dr. Amina Khan",
+      "date": "2026-04-01",
+      "time": "10:30",
+      "reason": "follow up",
+      "status": "pending",
+      "type": "in-person",
+      "notes": "",
+      "createdAt": "2026-03-30T05:49:20.647Z"
+    },
+    {
+      "id": 6,
+      "patient_id": 7,
+      "doctor_id": 4,
+      "patient_name": "Natasha Leyla",
+      "doctor_name": "Dr. Amina Khan",
+      "date": "2026-04-06",
+      "time": "10:00",
+      "reason": "follow up",
+      "type": "in-person",
+      "status": "confirmed",
+      "createdAt": "2026-04-05T06:03:46.641Z"
+    },
+    {
+      "id": 7,
+      "patient_id": 7,
+      "doctor_id": 4,
+      "patient_name": "Natasha Leyla",
+      "doctor_name": "Dr. Amina Khan",
+      "date": "2026-04-11",
+      "time": "10:00",
+      "reason": "follow up",
+      "type": "in-person",
+      "status": "confirmed",
+      "createdAt": "2026-04-10T06:17:42.512Z"
+    },
+    {
+      "id": 8,
+      "patient_id": 1,
+      "doctor_id": 2,
+      "patient_name": "John Mwangi",
+      "doctor_name": "Dr. Sarah Moraa",
+      "date": "2026-04-12",
+      "time": "10:00",
+      "reason": "follow up",
+      "type": "in-person",
+      "status": "confirmed",
+      "createdAt": "2026-04-11T17:26:46.974Z"
+    },
+    {
+      "id": 9,
+      "patient_id": 1,
+      "doctor_id": 2,
+      "patient_name": "John Mwangi",
+      "doctor_name": "Dr. Sarah Moraa",
+      "date": "2026-04-12",
+      "time": "09:00",
+      "reason": "follow up",
+      "type": "in-person",
+      "status": "confirmed",
+      "createdAt": "2026-04-11T17:53:11.723Z"
+    },
+    {
+      "id": 10,
+      "patient_id": 1,
+      "doctor_id": 3,
+      "patient_name": "John Mwangi",
+      "doctor_name": "Dr. Michael Kibet",
+      "date": "2026-04-12",
+      "time": "10:00",
+      "reason": "follow up",
+      "type": "in-person",
+      "status": "confirmed",
+      "createdAt": "2026-04-11T18:22:02.290Z"
+    }
+  ],
+  "medicalRecords": [],
+  "prescriptions": [
+    {
+      "id": 1,
+      "patient_id": 1,
+      "doctor_id": 2,
+      "doctor_name": "Dr. Sarah Moraa",
+      "patient_name": "John Mwangi",
+      "medication_name": "Lisinopril",
+      "dosage": "10mg daily",
+      "frequency": "Once daily",
+      "instructions": "Take in the morning with food",
+      "refills": 2,
+      "prescribed_date": "2024-03-15",
+      "expires_at": "2024-06-15",
+      "status": "active",
+      "created_at": "2024-03-29T10:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "patient_id": 1,
+      "doctor_id": 4,
+      "doctor_name": "Dr. Amina Khan",
+      "patient_name": "John Mwangi",
+      "medication_name": "Mupirocin Ointment USP",
+      "dosage": "apply once a day",
+      "frequency": "Once daily",
+      "instructions": "Make sure you shower well, do not apply to open wounds",
+      "refills": 2,
+      "prescribed_date": "2026-03-29",
+      "expires_at": "2026-06-27",
+      "status": "active",
+      "created_at": "2026-03-29T09:40:17.261Z"
+    },
+    {
+      "id": 3,
+      "patient_id": 7,
+      "doctor_id": 2,
+      "doctor_name": "Dr. Sarah Moraa",
+      "patient_name": "Natasha Leyla",
+      "medication_name": "Panadol Extra",
+      "dosage": "1 tablet 3 times daily",
+      "frequency": "Three times daily",
+      "instructions": "Take after meals",
+      "refills": 0,
+      "prescribed_date": "2026-03-30",
+      "expires_at": "2026-06-28",
+      "status": "active",
+      "created_at": "2026-03-30T05:50:20.647Z"
+    }
+  ],
+  "labResults": [],
+  "healthMetrics": [],
+  "healthJournal": [],
+  "medicationReminders": [],
+  "vaccinationRecords": [],
+  "refillRequests": [],
+  "messages": [
+    {
+      "id": 1,
+      "from_user_id": 4,
+      "to_user_id": 1,
+      "message": "Refill Request Approved\n\nYour refill request for Mupirocin Ointment USP (apply once a day) has been APPROVED. You can pick up your medication from your preferred pharmacy.",
+      "from_user_name": "Dr. Amina Khan",
+      "read": true,
+      "created_at": "2026-04-10T10:11:36.613Z"
+    },
+    {
+      "id": 2,
+      "from_user_id": 1,
+      "to_user_id": 4,
+      "message": "ok",
+      "from_user_name": "John Mwangi",
+      "read": true,
+      "created_at": "2026-04-10T10:15:50.834Z"
+    },
+    {
+      "id": 3,
+      "from_user_id": 2,
+      "to_user_id": 1,
+      "message": "Appointment Confirmed\n\nYour appointment with Dr. Sarah Moraa on 4/20/2024 at 14:30 has been CONFIRMED. Please arrive 15 minutes early.",
+      "from_user_name": "Dr. Sarah Moraa",
+      "read": true,
+      "created_at": "2026-04-11T17:54:57.338Z"
+    },
+    {
+      "id": 4,
+      "from_user_id": 2,
+      "to_user_id": 1,
+      "message": "Refill Request Approved\n\nYour refill request for Lisinopril (10mg daily) has been APPROVED. You can pick up your medication from your preferred pharmacy.",
+      "from_user_name": "Dr. Sarah Moraa",
+      "read": true,
+      "created_at": "2026-04-11T17:55:10.953Z"
+    },
+    {
+      "id": 5,
+      "from_user_id": 3,
+      "to_user_id": 3,
+      "message": "hey",
+      "from_user_name": "Dr. Michael Kibet",
+      "read": false,
+      "created_at": "2026-04-11T18:47:51.591Z"
+    }
+  ],
+  "notifications": [],
+  "nextId": {
+    "users": 12,
+    "appointments": 11,
+    "medicalRecords": 1,
+    "prescriptions": 4,
+    "labResults": 1,
+    "healthMetrics": 1,
+    "healthJournal": 1,
+    "medicationReminders": 1,
+    "vaccinationRecords": 1,
+    "messages": 6,
+    "notifications": 1,
+    "refillRequests": 1
+  }
+}
