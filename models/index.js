@@ -1,23 +1,25 @@
 // backend/models/index.js
 const { Sequelize, DataTypes } = require('sequelize');
 
-// IMPORTANT: Use DATABASE_URL in production, local config in development
 let sequelize;
 
+// Check if we're on Render (production) or local
+const isProduction = process.env.NODE_ENV === 'production' || process.env.DATABASE_URL;
+
 if (process.env.DATABASE_URL) {
-  // On Render.com - use the DATABASE_URL they provide
+  // On Render.com - use DATABASE_URL with SSL
   sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'postgres',
     logging: false,
     dialectOptions: {
       ssl: {
         require: true,
-        rejectUnauthorized: false  // Required for Render's PostgreSQL
+        rejectUnauthorized: false
       }
     }
   });
 } else {
-  // Local development
+  // Local development - no SSL
   sequelize = new Sequelize(
     process.env.DB_NAME || 'maishacare_db',
     process.env.DB_USER || 'maishacare_user',
@@ -26,7 +28,9 @@ if (process.env.DATABASE_URL) {
       host: process.env.DB_HOST || 'localhost',
       port: process.env.DB_PORT || 5432,
       dialect: 'postgres',
-      logging: false
+      logging: false,
+      // No SSL for local development
+      dialectOptions: {}
     }
   );
 }
