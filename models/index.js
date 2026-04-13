@@ -1,28 +1,40 @@
 // backend/models/index.js
 const { Sequelize, DataTypes } = require('sequelize');
 
-const sequelize = new Sequelize(
-  process.env.DB_NAME || 'maishacare_db',
-  process.env.DB_USER || 'maishacare_user',
-  process.env.DB_PASSWORD || 'maishacare123',
-  {
-    host: process.env.DB_HOST || 'localhost',
-    port: process.env.DB_PORT || 5432,
+// IMPORTANT: Use DATABASE_URL in production, local config in development
+let sequelize;
+
+if (process.env.DATABASE_URL) {
+  // On Render.com - use the DATABASE_URL they provide
+  sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'postgres',
     logging: false,
-    pool: {
-      max: 5,
-      min: 0,
-      acquire: 30000,
-      idle: 10000
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false  // Required for Render's PostgreSQL
+      }
     }
-  }
-);
+  });
+} else {
+  // Local development
+  sequelize = new Sequelize(
+    process.env.DB_NAME || 'maishacare_db',
+    process.env.DB_USER || 'maishacare_user',
+    process.env.DB_PASSWORD || 'maishacare123',
+    {
+      host: process.env.DB_HOST || 'localhost',
+      port: process.env.DB_PORT || 5432,
+      dialect: 'postgres',
+      logging: false
+    }
+  );
+}
 
 // Test connection
 sequelize.authenticate()
   .then(() => console.log('PostgreSQL connected successfully'))
-  .catch(err => console.error('Unable to connect to PostgreSQL:', err));
+  .catch(err => console.error('Unable to connect to PostgreSQL:', err.message));
 
 // User Model
 const User = sequelize.define('User', {
@@ -161,7 +173,7 @@ const RefillRequest = sequelize.define('RefillRequest', {
   updatedAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
 });
 
-// Define associations
+// Associations
 User.hasMany(Appointment, { foreignKey: 'patient_id' });
 User.hasMany(Appointment, { foreignKey: 'doctor_id' });
 User.hasMany(Prescription, { foreignKey: 'patient_id' });
