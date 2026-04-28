@@ -1,4 +1,4 @@
-// backend/server.js - Production Ready with PostgreSQL
+// backend/server.js - Production Ready with PostgreSQL (No Payment Integration)
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -14,7 +14,7 @@ const multer = require('multer');
 const http = require('http');
 const socketIo = require('socket.io');
 const { Op } = require('sequelize');
-const { sequelize, User, Appointment, Prescription, LabResult, MedicalRecord, Message, Notification, RefillRequest } = require('./models');
+const { sequelize, User, Appointment, Prescription, LabResult, MedicalRecord, Message, Notification, RefillRequest, PharmacyOrder } = require('./models');
 const { uploadToCloudinary, deleteFromCloudinary } = require('./services/cloudinaryService');
 const geminiService = require('./services/geminiService');
 
@@ -60,7 +60,6 @@ async function initDatabase() {
     await sequelize.sync({ alter: process.env.NODE_ENV === 'development' });
     console.log('Database synced');
     
-    // Seed initial data if empty
     const userCount = await User.count();
     if (userCount === 0) {
       await seedDatabase();
@@ -80,11 +79,95 @@ async function seedDatabase() {
     { name: 'Mary Wanjiku', email: 'mary@email.com', password: hashedPassword, role: 'patient', phone: '+254756789012', address: '456 Kilimani Road, Nairobi', health_score: 78, date_of_birth: '1988-08-22', emergency_contact: '+254767890123' },
     { name: 'Peter Ochieng', email: 'peter@email.com', password: hashedPassword, role: 'patient', phone: '+254767890123', address: '789 Langata Road, Nairobi', health_score: 72, date_of_birth: '1978-11-30', emergency_contact: '+254778901234' },
     { name: 'Natasha Leyla', email: 'natashaleyla9@gmail.com', password: hashedPassword, role: 'patient', phone: '+254712345678', health_score: 100 },
-    { name: 'Dr. Sarah Moraa', email: 'sarah@health.com', password: hashedDoctorPassword, role: 'doctor', specialty: 'Cardiologist', phone: '+254723456789', address: '123 Medical Center Dr', bio: 'Board-certified cardiologist with over 12 years of experience.', license_number: 'MD-12345', years_of_experience: '12' },
-    { name: 'Dr. Michael Kibet', email: 'michael@health.com', password: hashedDoctorPassword, role: 'doctor', specialty: 'Pediatrician', phone: '+254734567890', address: '456 Children\'s Way', bio: 'Dedicated pediatrician specializing in child development.', license_number: 'MD-23456', years_of_experience: '8' },
-    { name: 'Dr. Amina Khan', email: 'amina@health.com', password: hashedDoctorPassword, role: 'doctor', specialty: 'Gynecologist', phone: '+254745678901', address: '789 Women\'s Health Center', bio: 'Experienced gynecologist dedicated to women\'s health.', license_number: 'MD-34567', years_of_experience: '10' }
+    { name: 'Sarah Moraa', email: 'sarah@health.com', password: hashedDoctorPassword, role: 'doctor', specialty: 'Cardiologist', phone: '+254723456789', address: '123 Medical Center Dr', bio: 'Board-certified cardiologist with over 12 years of experience.', license_number: 'MD-12345', years_of_experience: '12' },
+    { name: 'Michael Kibet', email: 'michael@health.com', password: hashedDoctorPassword, role: 'doctor', specialty: 'Pediatrician', phone: '+254734567890', address: '456 Children\'s Way', bio: 'Dedicated pediatrician specializing in child development.', license_number: 'MD-23456', years_of_experience: '8' },
+    { name: 'Amina Khan', email: 'amina@health.com', password: hashedDoctorPassword, role: 'doctor', specialty: 'Gynecologist', phone: '+254745678901', address: '789 Women\'s Health Center', bio: 'Experienced gynecologist dedicated to women\'s health.', license_number: 'MD-34567', years_of_experience: '10' }
   ]);
-  console.log('Database seeded with initial users');
+  console.log('Users seeded');
+
+  // Get created user IDs
+  const patients = await User.findAll({ where: { role: 'patient' } });
+  const doctors = await User.findAll({ where: { role: 'doctor' } });
+  
+  const john = patients.find(p => p.name === 'John Mwangi');
+  const mary = patients.find(p => p.name === 'Mary Wanjiku');
+  const peter = patients.find(p => p.name === 'Peter Ochieng');
+  const drSarah = doctors.find(d => d.name === 'Sarah Moraa');
+
+  // Seed Lab Results
+  if (john && drSarah) {
+    await LabResult.bulkCreate([
+      {
+        patient_id: john.id,
+        doctor_id: drSarah.id,
+        patient_name: john.name,
+        doctor_name: drSarah.name,
+        test_name: 'Complete Blood Count (CBC)',
+        date: '2026-03-15',
+        status: 'approved',
+        results: {
+          'WBC': { value: 7.2, unit: 'x10^3/uL', normal: '4.0-11.0', status: 'normal' },
+          'RBC': { value: 4.8, unit: 'x10^6/uL', normal: '4.5-5.9', status: 'normal' },
+          'Hemoglobin': { value: 14.2, unit: 'g/dL', normal: '13.5-17.5', status: 'normal' },
+          'Platelets': { value: 250, unit: 'x10^3/uL', normal: '150-450', status: 'normal' }
+        },
+        doctor_notes: 'All values within normal range. Continue current treatment.'
+      },
+      {
+        patient_id: john.id,
+        doctor_id: drSarah.id,
+        patient_name: john.name,
+        doctor_name: drSarah.name,
+        test_name: 'Lipid Panel',
+        date: '2026-03-10',
+        status: 'approved',
+        results: {
+          'Total Cholesterol': { value: 210, unit: 'mg/dL', normal: '<200', status: 'high' },
+          'HDL': { value: 45, unit: 'mg/dL', normal: '>40', status: 'normal' },
+          'LDL': { value: 130, unit: 'mg/dL', normal: '<100', status: 'high' },
+          'Triglycerides': { value: 175, unit: 'mg/dL', normal: '<150', status: 'high' }
+        },
+        doctor_notes: 'Elevated cholesterol levels. Recommend dietary changes and increased physical activity.'
+      }
+    ]);
+    console.log('Lab results seeded for John Mwangi');
+  }
+
+  if (mary && drSarah) {
+    await LabResult.create({
+      patient_id: mary.id,
+      doctor_id: drSarah.id,
+      patient_name: mary.name,
+      doctor_name: drSarah.name,
+      test_name: 'Thyroid Function Test',
+      date: '2026-03-20',
+      status: 'pending',
+      results: {
+        'TSH': { value: 4.5, unit: 'mIU/L', normal: '0.4-4.0', status: 'high' },
+        'T3': { value: 120, unit: 'ng/dL', normal: '80-200', status: 'normal' },
+        'T4': { value: 5.2, unit: 'ug/dL', normal: '4.5-12', status: 'normal' }
+      },
+      doctor_notes: null
+    });
+    console.log('Lab results seeded for Mary Wanjiku');
+  }
+
+  if (peter && drSarah) {
+    await LabResult.create({
+      patient_id: peter.id,
+      doctor_id: drSarah.id,
+      patient_name: peter.name,
+      doctor_name: drSarah.name,
+      test_name: 'Urinalysis',
+      date: '2026-03-18',
+      status: 'pending',
+      results: null,
+      doctor_notes: null
+    });
+    console.log('Lab results seeded for Peter Ochieng');
+  }
+
+  console.log('Database seeding completed');
 }
 
 // Auth middleware
@@ -168,11 +251,27 @@ app.post('/api/login', async (req, res) => {
 });
 
 // Profile routes
+app.get('/api/patients', auth, async (req, res) => {
+  try {
+    const patients = await User.findAll({ 
+      where: { role: 'patient' },
+      attributes: { exclude: ['password'] },
+      order: [['name', 'ASC']]
+    });
+    res.json(patients);
+  } catch (error) {
+    console.error('Error fetching patients:', error);
+    res.status(500).json({ error: 'Failed to fetch patients' });
+  }
+});
+
 app.get('/api/patients/:id', auth, async (req, res) => {
-  const patient = await User.findOne({ where: { id: req.params.id, role: 'patient' } });
+  const patient = await User.findOne({ 
+    where: { id: req.params.id, role: 'patient' },
+    attributes: { exclude: ['password'] }
+  });
   if (!patient) return res.status(404).json({ error: 'Patient not found' });
-  const { password, ...patientWithoutPassword } = patient.toJSON();
-  res.json(patientWithoutPassword);
+  res.json(patient);
 });
 
 app.put('/api/patients/:id', auth, async (req, res) => {
@@ -183,16 +282,22 @@ app.put('/api/patients/:id', auth, async (req, res) => {
   res.json(patientWithoutPassword);
 });
 
-app.get('/api/doctors/:id', auth, async (req, res) => {
-  const doctor = await User.findOne({ where: { id: req.params.id, role: 'doctor' } });
-  if (!doctor) return res.status(404).json({ error: 'Doctor not found' });
-  const { password, ...doctorWithoutPassword } = doctor.toJSON();
-  res.json(doctorWithoutPassword);
+app.get('/api/doctors', auth, async (req, res) => {
+  const doctors = await User.findAll({ 
+    where: { role: 'doctor' }, 
+    attributes: { exclude: ['password'] },
+    order: [['name', 'ASC']]
+  });
+  res.json(doctors);
 });
 
-app.get('/api/doctors', auth, async (req, res) => {
-  const doctors = await User.findAll({ where: { role: 'doctor' }, attributes: { exclude: ['password'] } });
-  res.json(doctors);
+app.get('/api/doctors/:id', auth, async (req, res) => {
+  const doctor = await User.findOne({ 
+    where: { id: req.params.id, role: 'doctor' },
+    attributes: { exclude: ['password'] }
+  });
+  if (!doctor) return res.status(404).json({ error: 'Doctor not found' });
+  res.json(doctor);
 });
 
 app.post('/api/change-password', auth, async (req, res) => {
@@ -207,8 +312,9 @@ app.post('/api/change-password', auth, async (req, res) => {
 
 // Appointment routes
 app.get('/api/appointments', auth, async (req, res) => {
+  const where = req.user.role === 'doctor' ? { doctor_id: req.user.id } : { patient_id: req.user.id };
   const appointments = await Appointment.findAll({
-    where: req.user.role === 'doctor' ? { doctor_id: req.user.id } : { patient_id: req.user.id },
+    where,
     order: [['date', 'ASC']]
   });
   res.json(appointments);
@@ -236,10 +342,12 @@ app.put('/api/appointments/:id', auth, async (req, res) => {
   res.json({ success: true, appointment });
 });
 
-// Prescription routes
 app.get('/api/prescriptions', auth, async (req, res) => {
   const where = req.user.role === 'doctor' ? { doctor_id: req.user.id } : { patient_id: req.user.id };
-  const prescriptions = await Prescription.findAll({ where, order: [['prescribed_date', 'DESC']] });
+  const prescriptions = await Prescription.findAll({ 
+    where, 
+    order: [['prescribed_date', 'DESC']]
+  });
   res.json(prescriptions);
 });
 
@@ -254,10 +362,12 @@ app.post('/api/prescriptions', auth, async (req, res) => {
     patient_id, doctor_id: req.user.id, patient_name: patient.name, doctor_name: req.user.name,
     medication_name, dosage, frequency, instructions, refills: refills || 0,
     prescribed_date: new Date().toISOString().split('T')[0],
-    expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    status: 'active'
   });
   
-  await sendEmail(patient.email, 'New Prescription Issued', `<h1>New Prescription</h1><p>Dr. ${req.user.name} has issued a prescription for ${medication_name}.</p>`);
+  await sendEmail(patient.email, 'New Prescription Issued', `<h1>New Prescription</h1><p>Dr. ${req.user.name} has issued a prescription for ${medication_name}.</p><p>Dosage: ${dosage}</p><p>Frequency: ${frequency}</p>`);
+  
   res.status(201).json(newPrescription);
 });
 
@@ -344,45 +454,76 @@ app.get('/api/messages/:userId', auth, async (req, res) => {
   res.json(messages);
 });
 
-// WebSocket
-const onlineUsers = new Map();
-io.on('connection', (socket) => {
-  console.log('New client connected:', socket.id);
-  
-  socket.on('user-online', (data) => {
-    onlineUsers.set(data.userId, { socketId: socket.id, name: data.userName, role: data.userRole });
-    io.emit('users-online', Array.from(onlineUsers.entries()).map(([id, d]) => ({ id, name: d.name, role: d.role })));
-  });
-  
-  socket.on('private-message', async (data) => {
-    const recipient = onlineUsers.get(parseInt(data.toUserId));
-    if (recipient) {
-      io.to(recipient.socketId).emit('new-message', {
-        fromUserId: parseInt(socket.userId), fromUserName: data.fromUserName,
-        fromUserRole: data.fromUserRole, message: data.message, timestamp: new Date()
-      });
-    }
-    await Message.create({
-      from_user_id: parseInt(socket.userId), to_user_id: parseInt(data.toUserId),
-      message: data.message, from_user_name: data.fromUserName
+// ==================== PHARMACY ROUTES ====================
+
+app.post('/api/pharmacy/orders', auth, async (req, res) => {
+  try {
+    const { items, total_amount, delivery_address, payment_method } = req.body;
+    
+    const newOrder = await PharmacyOrder.create({
+      user_id: req.user.id,
+      items: typeof items === 'string' ? items : JSON.stringify(items),
+      total_amount,
+      delivery_address,
+      payment_method: payment_method || 'cash_on_delivery',
+      status: 'pending'
     });
-  });
-  
-  socket.on('typing', (data) => {
-    const recipient = onlineUsers.get(parseInt(data.toUserId));
-    if (recipient) io.to(recipient.socketId).emit('user-typing', { fromUserId: parseInt(socket.userId), fromUserName: data.fromUserName });
-  });
-  
-  socket.on('disconnect', () => {
-    if (socket.userId) {
-      onlineUsers.delete(parseInt(socket.userId));
-      io.emit('users-online', Array.from(onlineUsers.entries()).map(([id, d]) => ({ id, name: d.name, role: d.role })));
-      console.log('User disconnected:', socket.userId);
-    }
-  });
+    
+    await sendEmail(req.user.email, 'Pharmacy Order Confirmed', `
+      <h1>Order Confirmed</h1>
+      <p>Your order has been placed successfully.</p>
+      <p>Order ID: ${newOrder.id}</p>
+      <p>Total Amount: KSh ${total_amount}</p>
+      <p>Delivery Address: ${delivery_address}</p>
+      <p>Payment Method: Cash on Delivery</p>
+    `);
+    
+    res.status(201).json({ success: true, order: newOrder });
+  } catch (error) {
+    console.error('Order creation error:', error);
+    res.status(500).json({ success: false, message: 'Failed to create order' });
+  }
 });
 
-// Gemini AI routes
+app.get('/api/pharmacy/orders/:userId', auth, async (req, res) => {
+  try {
+    const orders = await PharmacyOrder.findAll({
+      where: { user_id: req.params.userId },
+      order: [['created_at', 'DESC']]
+    });
+    res.json(orders);
+  } catch (error) {
+    console.error('Fetch orders error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch orders' });
+  }
+});
+
+app.post('/api/pharmacy/upload-prescription', auth, upload.single('prescription'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+  
+  try {
+    const result = await uploadToCloudinary(req.file.buffer, `pharmacy-prescriptions/${req.user.id}`);
+    
+    const prescriptionRecord = await Prescription.create({
+      patient_id: req.user.id,
+      patient_name: req.user.name,
+      medication_name: req.body.medication_name || 'Uploaded Prescription',
+      dosage: req.body.dosage || 'As prescribed',
+      instructions: 'Please verify this prescription',
+      prescribed_date: new Date().toISOString().split('T')[0],
+      file_url: result.secure_url,
+      status: 'pending_verification'
+    });
+    
+    res.json({ success: true, message: 'Prescription uploaded successfully', prescription: prescriptionRecord });
+  } catch (error) {
+    console.error('Upload error:', error);
+    res.status(500).json({ success: false, message: 'Upload failed' });
+  }
+});
+
+// ==================== OTHER ROUTES ====================
+
 app.post('/api/gemini/chat', auth, async (req, res) => {
   try {
     const { message } = req.body;
@@ -396,12 +537,29 @@ app.post('/api/gemini/chat', auth, async (req, res) => {
 
 // Lab Results routes
 app.get('/api/lab-results', auth, async (req, res) => {
-  const where = req.user.role === 'doctor' ? { doctor_id: req.user.id } : { patient_id: req.user.id };
-  const labResults = await LabResult.findAll({ where, order: [['date', 'DESC']] });
-  res.json(labResults);
+  try {
+    let where = {};
+    if (req.user.role === 'doctor') {
+      where = { doctor_id: req.user.id };
+    } else {
+      where = { patient_id: req.user.id };
+    }
+    const labResults = await LabResult.findAll({ 
+      where, 
+      order: [['date', 'DESC']]
+    });
+    res.json(labResults);
+  } catch (error) {
+    console.error('Error fetching lab results:', error);
+    res.status(500).json({ error: 'Failed to fetch lab results' });
+  }
 });
 
 app.put('/api/lab-results/:id/review', auth, async (req, res) => {
+  if (req.user.role !== 'doctor') {
+    return res.status(403).json({ error: 'Only doctors can review lab results' });
+  }
+  
   const { status, notes } = req.body;
   await LabResult.update({ 
     status: status || 'approved', 
@@ -413,7 +571,6 @@ app.put('/api/lab-results/:id/review', auth, async (req, res) => {
   res.json({ success: true, labResult });
 });
 
-// Refill requests routes
 app.get('/api/prescriptions/refill-requests', auth, async (req, res) => {
   if (req.user.role !== 'doctor') return res.status(403).json({ error: 'Access denied' });
   const requests = await RefillRequest.findAll({ where: { doctor_id: req.user.id, status: 'pending' } });
@@ -440,7 +597,6 @@ app.post('/api/prescriptions/:id/refill', auth, async (req, res) => {
   res.json({ success: true, message: 'Refill request submitted', refillRequest });
 });
 
-// Reminder routes
 app.post('/api/send-reminder', auth, async (req, res) => {
   const { appointment_id, method } = req.body;
   const appointment = await Appointment.findByPk(appointment_id);
@@ -461,7 +617,6 @@ app.post('/api/send-reminder', auth, async (req, res) => {
   res.json({ success: true, message: `Reminder sent via ${method}` });
 });
 
-// Contact form
 app.post('/api/contact', async (req, res) => {
   const { name, email, subject, message } = req.body;
   if (!name || !email || !subject || !message) return res.status(400).json({ error: 'All fields required' });
@@ -469,6 +624,58 @@ app.post('/api/contact', async (req, res) => {
   await sendEmail(process.env.EMAIL_USER || 'admin@health.com', `Contact Form: ${subject}`, `<p><strong>From:</strong> ${name} (${email})</p><p>${message}</p>`);
   await sendEmail(email, 'Thank you for contacting us', `<h1>Thank you ${name}!</h1><p>We'll get back to you soon.</p>`);
   res.json({ success: true, message: 'Message sent successfully' });
+});
+
+// ==================== WEBSOCKET ====================
+
+const onlineUsers = new Map();
+io.on('connection', (socket) => {
+  console.log('New client connected:', socket.id);
+  
+  socket.on('user-online', (data) => {
+    onlineUsers.set(parseInt(data.userId), { socketId: socket.id, name: data.userName, role: data.userRole });
+    io.emit('users-online', Array.from(onlineUsers.entries()).map(([id, d]) => ({ id, name: d.name, role: d.role })));
+  });
+  
+  socket.on('private-message', async (data) => {
+    const recipient = onlineUsers.get(parseInt(data.toUserId));
+    if (recipient) {
+      io.to(recipient.socketId).emit('new-message', {
+        fromUserId: parseInt(data.fromUserId),
+        fromUserName: data.fromUserName,
+        fromUserRole: data.fromUserRole,
+        message: data.message,
+        timestamp: new Date()
+      });
+    }
+    await Message.create({
+      from_user_id: parseInt(data.fromUserId),
+      to_user_id: parseInt(data.toUserId),
+      message: data.message,
+      from_user_name: data.fromUserName
+    });
+  });
+  
+  socket.on('typing', (data) => {
+    const recipient = onlineUsers.get(parseInt(data.toUserId));
+    if (recipient) {
+      io.to(recipient.socketId).emit('user-typing', {
+        fromUserId: parseInt(data.fromUserId),
+        fromUserName: data.fromUserName
+      });
+    }
+  });
+  
+  socket.on('disconnect', () => {
+    for (const [userId, user] of onlineUsers.entries()) {
+      if (user.socketId === socket.id) {
+        onlineUsers.delete(userId);
+        break;
+      }
+    }
+    io.emit('users-online', Array.from(onlineUsers.entries()).map(([id, d]) => ({ id, name: d.name, role: d.role })));
+    console.log('User disconnected:', socket.id);
+  });
 });
 
 // Graceful shutdown
@@ -482,22 +689,6 @@ process.on('SIGTERM', async () => {
 const PORT = process.env.PORT || 5000;
 initDatabase().then(() => {
   server.listen(PORT, () => {
-    console.log(`\n${'='.repeat(60)}`);
-    console.log(`AI-Powered Health Assistant API Server`);
-    console.log(`${'='.repeat(60)}`);
-    console.log(`\nServer running on: http://localhost:${PORT}`);
-    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`Database: PostgreSQL`);
-    console.log(`\nTEST CREDENTIALS:`);
-    console.log(`   DOCTORS:`);
-    console.log(`     - sarah@health.com / doctor123 (Dr. Sarah Moraa)`);
-    console.log(`     - michael@health.com / doctor123 (Dr. Michael Kibet)`);
-    console.log(`     - amina@health.com / doctor123 (Dr. Amina Khan)`);
-    console.log(`\n   PATIENTS:`);
-    console.log(`     - john@email.com / patient123 (John Mwangi)`);
-    console.log(`     - mary@email.com / patient123 (Mary Wanjiku)`);
-    console.log(`     - peter@email.com / patient123 (Peter Ochieng)`);
-    console.log(`     - natashaleyla9@gmail.com / patient123 (Natasha Leyla)`);
-    console.log(`\n${'='.repeat(60)}\n`);
+    console.log(`Server running on port ${PORT}`);
   });
 });

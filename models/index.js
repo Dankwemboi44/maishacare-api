@@ -29,7 +29,6 @@ if (process.env.DATABASE_URL) {
       port: process.env.DB_PORT || 5432,
       dialect: 'postgres',
       logging: false,
-      // No SSL for local development
       dialectOptions: {}
     }
   );
@@ -97,6 +96,7 @@ const Prescription = sequelize.define('Prescription', {
   expires_at: { type: DataTypes.DATEONLY, allowNull: true },
   status: { type: DataTypes.ENUM('active', 'expired', 'completed'), defaultValue: 'active' },
   document_url: { type: DataTypes.STRING, allowNull: true },
+  file_url: { type: DataTypes.STRING, allowNull: true },
   createdAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
   updatedAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
 });
@@ -177,20 +177,63 @@ const RefillRequest = sequelize.define('RefillRequest', {
   updatedAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
 });
 
-// Associations
+// PharmacyOrder Model for pharmacy deliveries
+const PharmacyOrder = sequelize.define('PharmacyOrder', {
+  id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+  user_id: { type: DataTypes.INTEGER, allowNull: false },
+  items: { type: DataTypes.TEXT, allowNull: false },
+  total_amount: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
+  delivery_address: { type: DataTypes.TEXT, allowNull: false },
+  payment_method: { type: DataTypes.STRING, allowNull: false },
+  transaction_id: { type: DataTypes.STRING, allowNull: true },
+  checkout_request_id: { type: DataTypes.STRING, allowNull: true },
+  mpesa_receipt_number: { type: DataTypes.STRING, allowNull: true },
+  status: { 
+    type: DataTypes.ENUM('pending', 'paid', 'processing', 'shipped', 'delivered', 'cancelled'), 
+    defaultValue: 'pending' 
+  },
+  tracking_number: { type: DataTypes.STRING, allowNull: true },
+  estimated_delivery: { type: DataTypes.DATEONLY, allowNull: true },
+  created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
+  updated_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
+}, {
+  tableName: 'pharmacy_orders',
+  timestamps: false,
+  underscored: true
+});
+
+// ==================== ASSOCIATIONS ====================
+
+// User associations
 User.hasMany(Appointment, { foreignKey: 'patient_id' });
 User.hasMany(Appointment, { foreignKey: 'doctor_id' });
-User.hasMany(Prescription, { foreignKey: 'patient_id' });
-User.hasMany(Prescription, { foreignKey: 'doctor_id' });
+User.hasMany(Prescription, { foreignKey: 'patient_id', as: 'patientPrescriptions' });
+User.hasMany(Prescription, { foreignKey: 'doctor_id', as: 'doctorPrescriptions' });
 User.hasMany(Message, { foreignKey: 'from_user_id' });
 User.hasMany(Message, { foreignKey: 'to_user_id' });
 User.hasMany(Notification, { foreignKey: 'user_id' });
 User.hasMany(MedicalRecord, { foreignKey: 'patient_id' });
 User.hasMany(LabResult, { foreignKey: 'patient_id' });
 User.hasMany(LabResult, { foreignKey: 'doctor_id' });
+User.hasMany(RefillRequest, { foreignKey: 'patient_id' });
+User.hasMany(RefillRequest, { foreignKey: 'doctor_id' });
+User.hasMany(PharmacyOrder, { foreignKey: 'user_id' });
 
+// Appointment associations
 Appointment.belongsTo(User, { as: 'patient', foreignKey: 'patient_id' });
 Appointment.belongsTo(User, { as: 'doctor', foreignKey: 'doctor_id' });
+
+// Prescription associations - FIXED: Added these
+Prescription.belongsTo(User, { as: 'patient', foreignKey: 'patient_id' });
+Prescription.belongsTo(User, { as: 'doctor', foreignKey: 'doctor_id' });
+
+// PharmacyOrder associations
+PharmacyOrder.belongsTo(User, { as: 'user', foreignKey: 'user_id' });
+
+// RefillRequest associations
+RefillRequest.belongsTo(Prescription, { foreignKey: 'prescription_id' });
+RefillRequest.belongsTo(User, { as: 'patient', foreignKey: 'patient_id' });
+RefillRequest.belongsTo(User, { as: 'doctor', foreignKey: 'doctor_id' });
 
 module.exports = {
   sequelize,
@@ -201,5 +244,6 @@ module.exports = {
   MedicalRecord,
   Message,
   Notification,
-  RefillRequest
+  RefillRequest,
+  PharmacyOrder
 };

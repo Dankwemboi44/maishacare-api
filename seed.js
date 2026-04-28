@@ -8,6 +8,10 @@ async function seed() {
     await sequelize.authenticate();
     console.log('Connected to database');
     
+    // Clear existing users first
+    await User.destroy({ where: {}, truncate: true, cascade: true });
+    console.log('Cleared existing users');
+    
     const hashedPatientPassword = await bcrypt.hash('patient123', 10);
     const hashedDoctorPassword = await bcrypt.hash('doctor123', 10);
     
